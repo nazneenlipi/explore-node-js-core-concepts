@@ -15,9 +15,32 @@ const server = http.createServer((req,res)=>{
         res.end(
             data
         )
-        
+// create a todo 
     }else if(req.url === "/todos/create-todo" && req.method === "POST"){
-        res.end("Todo created")
+        let data = ""
+
+        req.on("data", (chunk)=>{
+            data = data + chunk
+        })
+
+        req.on("end", ()=>{
+            // 1.distracture
+            const {title, body} = JSON.parse(data)
+            const createdAt = new Date().toLocaleString()
+            // 2. file read and parse 
+            const allTodos = fs.readFileSync(filePath,{encoding:"utf-8"})
+            const parsedData = JSON.parse(allTodos)
+            console.log(allTodos)
+            
+            // data push
+            parsedData.push({title,body,createdAt})
+
+            fs.writeFileSync(filePath,  JSON.stringify(parsedData), {encoding:"utf-8"})
+
+            res.end(JSON.stringify({title,body,createdAt}))
+        })
+
+
     }else{
     res.end("Route not found")
     }
